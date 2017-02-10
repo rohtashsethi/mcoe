@@ -1,0 +1,427 @@
+﻿<!DOCTYPE html>
+<!--[if IE 11]><html class="ie" lang="en"><![endif]-->
+<!--[if !IE]><!-->
+<html lang="en">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="refresh" content="300" />
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Incident | MCOE Dashboard</title>
+    <!--Library StyleSheet's-->
+    <link href="css/font-awesome.min.css?v=1.1" rel="stylesheet" />
+    <link href="css/bootstrap.min.css?v=1.1" rel="stylesheet" />
+    <link href="css/animate.css?v=1.1" rel="stylesheet" />
+    <!--Custom StyleSheet's-->
+    <link href="css/mcoe.style.css?v=1.0" rel="stylesheet" />
+    <!--<link href="css/gio.style.css?v=2.7" rel="stylesheet" />-->
+    <!--Library JavaScript's-->
+    <script src="js/jquery-3.1.0.min.js"></script>
+    <script src="js/angular.min.js?v=1.1"></script>
+    <script src="js/angular-count-to.min.js?v=1.1"></script>
+    <script src="js/bootstrap.min.js?v=1.1"></script>
+    <script src="js/highcharts.js?v=1.1"></script>
+    <script src="js/raphael.min.js?v=1.1"></script>
+    <script src="js/jquery.mousewheel.min.js"></script>
+    <script src="js/jquery.mapael.min.js?v=1.1"></script>
+    <script src="js/world_countries.min.js"></script>
+    <!--Custom JavaScript's-->
+    <script src="js/mcoe.script.js?v=1.1"></script>
+</head>
+
+<body ng-app="app" ng-controller="appCtrl">
+    <!--Wrapper-->
+    <div class="wrapper dashboard" ng-controller="incidentCtrl" ng-init="incidentInit()">
+        <!--Header-->
+        <header class="container-fluid page-header">
+            <!--Logo-->
+
+            <div class="col-xs-2 col-sm-2 col-lg-2 col-md-2"> <img class="oc-logo" src="img/oc-logo.png" alt="Owens Corning" /> <!--<img class="tcs-logo-full" src="img/tcs-logo-full.png" alt="Tata Consultancy Services" />--> </div>
+            <!--Title-->
+            <div class="col-xs-10 col-sm-6 col-lg-7 col-md-7 text-center">
+                <div class="dashboard-title">Manufacturing Technology Center of Excellence</div>
+            </div>
+            <!--Page Title-->
+            <div class="col-xs-12 col-sm-4 col-lg-3 col-md-3 title-key-frame ">
+                <div class="row">
+                    <div class="col-xs-2 col-sm-1 col-lg-1 col-md-1 reduce-left-padding-0 reduce-right-padding-0">
+                        <div class=" left-slide"></div>
+                    </div>
+                    <div class="col-xs-10 col-sm-11 col-md-11 col-lg-11 reduce-left-padding-0 reduce-right-padding-10 title-holder">
+                        <div class="page-title"> <span>SEVERITY 1 & 2 INCIDENTS</span> </div>
+                    </div>
+                </div>
+            </div>
+
+        </header>
+        <!--Data Section-->
+        <section class="container-fluid page-section incident animated fadeIn ng-hide" ng-hide="isPageHide">
+            <!--Map & Tile-->
+            <div class="row line-spacer-7">
+                <!--Incident Map-->
+                <div class="col-lg-8 col-sm-12 col-md-8 col-xs-12 reduce-right-padding-5 reduce-top-padding-5 reduce-right-padding-15">
+                    <div class="map-container">
+                        <!--Map-->
+                        <div class="incident-map map" id="chartdiv"></div>
+                        <!--Legends-->
+                        <div class="myLegend"></div>
+                        <!--Plot Detail Modal-->
+                        <div class="modal" id="mapModal" data-backdrop="false" style="padding-right:0px !important">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content modalPopup">
+                                    <div class="modal-header modalHeaderPopup">
+                                        <button type="button" class="close closeBtn" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span> </button>
+                                        <h4 id="incidentTitle" class="modal-title" style="text-align:center"></h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p id="incidentNumber"></p>
+                                        <p id="incidentLocation"></p>
+                                        <p id="incidentPriority"></p>
+                                        <p id="incidentDesc"></p>
+                                    </div>
+                                </div>
+                                <!-- /.modal-content -->
+                            </div>
+                            <!-- /.modal-dialog -->
+                        </div>
+                        <!-- /.modal -->
+                    </div>
+                </div>
+                <!--Tile Group-->
+                <div class="col-lg-4 col-sm-12 col-md-4 col-xs-12 reduce-left-padding-5   reduce-top-padding-5 reduce-top-padding-by-10 reduce-left-padding-15">
+
+                    <!--Tile 1: Carousel-->
+                    <div class="col-xs-6 col-sm-3 col-md-6 col-lg-6 reduce-both-padding-0 reduce-right-padding-3   ">
+                        <div class="tile incident-tile tile-color-1">
+                            <div class="carousel slide" data-interval="5000" data-pause="null">
+                                <div class="carousel-inner">
+                                    <div class="item active" ng-class="{'black-text-tile':incidentsP1.length<openIncidentsThreshold,'red-text-tile':incidentsP1.length>=openIncidentsThreshold}">
+                                        <div class="tile-icon"><span ng-class="{'up':incidentsP1.length<openIncidentsThreshold,'down':incidentsP1.length>=openIncidentsThreshold}"><i class="fa fa-thumbs-up fa-2x"></i><i class="fa fa-thumbs-down fa-2x"></i></span> <!--<span class="permanent"><i class="fa fa-exclamation-triangle fa-2x"></i></span>--> </div>
+                                        <div class="tile-header"> <span>SEVERITY-1</span> </div>
+                                        <div class="tile-count"> <span class="postionTop" ng-bind="incidentsP1.length"></span> </div>
+                                        <div class="tile-description"> <span>On-going Open incidents</span> </div>
+                                    </div>
+                                    <div class="item" ng-class="{'black-text-tile':incidentsP2.length<openIncidentsThreshold,'red-text-tile':incidentsP2.length>=openIncidentsThreshold}">
+                                        <!--<div class="tile incident-tile tile-color-5">-->
+                                        <div class="tile-icon"><span ng-class="{'up':incidentsP2.length<openIncidentsThreshold,'down':incidentsP2.length>=openIncidentsThreshold}"><i class="fa fa-thumbs-up fa-2x"></i><i class="fa fa-thumbs-down fa-2x"></i></span> <!--<span class="permanent"><i class="fa fa-exclamation-triangle fa-2x"></i></span>--> </div>
+                                        <div class="tile-header"> <span>SEVERITY-2</span> </div>
+                                        <div class="tile-count"> <span class="postionTop" ng-bind="incidentsP2.length"></span> </div>
+                                        <div class="tile-description"> <span>On-going Open incidents</span> </div>
+                                        <!--</div>-->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--Tile 2: Carousel-->
+                    <div class="col-xs-6 col-sm-3 col-lg-6 col-md-6 reduce-both-padding-0 reduce-left-padding-3 reduce-right-padding-by-3">
+                        <div class="tile incident-tile tile-color-2">
+                            <div class="carousel slide" data-interval="5000" data-pause="null">
+                                <div class="carousel-inner">
+                                    <div class="item active" ng-class="{'black-text-tile':incidentCountThisMonthP1<avgMonthIncidentP1,'red-text-tile':incidentCountThisMonthP1>=avgMonthIncidentP1}">
+                                        <div class="tile-icon"> <span ng-class="{'up':incidentCountThisMonthP1<avgMonthIncidentP1,'down':incidentCountThisMonthP1>=avgMonthIncidentP1}"><i class="fa fa-thumbs-up fa-2x"></i><i class="fa fa-thumbs-down fa-2x"></i></span> </div>
+                                        <div class="tile-header"> <span>SEVERITY-1</span> </div>
+                                        <div class="tile-count"> <span class="postionTop" ng-bind="incidentCountThisMonthP1"></span> </div>
+                                        <div class="tile-description">
+                                            <span>
+                                                Incidents in {{getCurrentMonth()}}
+
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="item" ng-class="{' black-text-tile':incidentCountThisMonthP2<avgMonthIncidentP2,'red-text-tile':incidentCountThisMonthP2>=avgMonthIncidentP2}">
+                                        <div class="tile-icon"> <span ng-class="{'up':incidentCountThisMonthP2<avgMonthIncidentP2,'down':incidentCountThisMonthP2>=avgMonthIncidentP2}"><i class="fa fa-thumbs-up fa-2x"></i><i class="fa fa-thumbs-down fa-2x"></i></span> </div>
+                                        <div class="tile-header"> <span>SEVERITY-2</span> </div>
+                                        <div class="tile-count"> <span class="postionTop" ng-bind="incidentCountThisMonthP2"></span> </div>
+                                        <div class="tile-description">
+                                            <span>
+                                                Incidents in {{getCurrentMonth()}}
+
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!----------------------------------Tile 3: Carousel-------------------------------------->
+                    <div class="col-xs-6 col-sm-3 col-lg-6 col-md-6 reduce-both-padding-0 reduce-top-padding-8 reduce-right-padding-3 reduce-left-padding-by-3">
+                        <div class="tile incident-tile tile-color-3">
+                            <div class="carousel slide" data-interval="5000" data-pause="null">
+                                <div class="carousel-inner">
+                                    <div class="item active" ng-class="{'black-text-tile':oldestCaseTimeThresholdP1>=oldestCaseTimeP1,'red-text-tile':oldestCaseTimeThresholdP1<oldestCaseTimeP1}">
+                                        <div class="tile-icon"><span ng-class="{'up':oldestCaseTimeThresholdP1>=oldestCaseTimeP1,'down':oldestCaseTimeThresholdP1<oldestCaseTimeP1}"><i class="fa fa-thumbs-up fa-2x"></i><i class="fa fa-thumbs-down fa-2x"></i></span> </div>
+                                        <div class="tile-header"> <span>SEVERITY-1</span> </div>
+                                        <div class="tile-count"> <span class="postionTop" ng-bind="oldestCaseTimeP1"></span> <span class="tile-unit" ng-bind="oldestCaseUnitP1"></span> </div>
+                                        <div class="tile-description"> <span>Oldest Incidents case</span> </div>
+                                    </div>
+                                    <div class="item" ng-class="{'black-text-tile':oldestCaseTimeThresholdP2>=oldestCaseTimeP2,'red-text-tile':oldestCaseTimeThresholdP2<oldestCaseTimeP2}">
+                                        <div class="tile-icon"><span ng-class="{'up':oldestCaseTimeThresholdP2>=oldestCaseTimeP2,'down':oldestCaseTimeThresholdP2<oldestCaseTimeP2}"><i class="fa fa-thumbs-up fa-2x"></i><i class="fa fa-thumbs-down fa-2x"></i></span> </div>
+                                        <div class="tile-header"> <span>SEVERITY-2</span> </div>
+                                        <div class="tile-count"> <span class="postionTop" ng-bind="oldestCaseTimeP2"></span> <span class="tile-unit" ng-bind="oldestCaseUnitP2"></span> </div>
+                                        <div class="tile-description"> <span>Oldest Incidents case</span> </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!------------------------------------------------Tile 4: Carousel------------------------------------>
+                    <div class="col-xs-6 col-sm-3 col-md-6 col-lg-6 reduce-both-padding-0 reduce-top-padding-8 reduce-left-padding-3">
+                        <div class="tile incident-tile tile-color-4">
+                            <div class="carousel slide" data-interval="5000" data-pause="null">
+                                <div class="carousel-inner">
+                                    <div class="item active">
+                                        <div class="tile-icon"> <span class="permanent"><i class="fa fa-line-chart fa-2x"></i></span> </div>
+                                        <div class="tile-header"> <span>SEVERITY-1</span> </div>
+                                        <div class="tile-count"> <span class="postionTop" ng-bind="avgMonthIncidentP1"></span> </div>
+                                        <div class="tile-description"> <span>Average Incidents per Month </span> </div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="tile-icon"> <span class="permanent"><i class="fa fa-line-chart fa-2x"></i></span> </div>
+                                        <div class="tile-header"> <span>SEVERITY-2</span> </div>
+                                        <div class="tile-count"> <span class="postionTop" ng-bind="avgMonthIncidentP2"></span> </div>
+                                        <div class="tile-description "> <span>Average Incidents per Month</span> </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!----------------------Description Slides----------------------------------->
+            <div class="row line-spacer-7">
+                <!--Severity 1 Slides-->
+                <div class="col-lg-6 col-sm-6 col-xs-12 col-md-6 reduce-right-padding-5  reduce-top-padding-5">
+                    <div class="slider-section">
+                        <!--Carousel-->
+                        <div class="carousel slide" data-interval="5000" data-pause="null">
+                            <!-- Wrapper for slides -->
+                            <div class="carousel-inner">
+                                <div class="item" ng-class="{'active':$index==0}" ng-repeat="icdt in incidentsP1">
+                                    <div class="slider-body sev-1">
+                                        <div class="row">
+                                            <div class="col-xs-9 col-sm-9 col-lg-9 col-md-9 reduce-right-padding-0">
+                                                <div class="incident-info ribbon">
+                                                    <a class="number" ng-bind="icdt.number" target="_blank" href="{{'https://owenscorning.service-now.com/incident.do?sys_id='+icdt.sys_id}}"></a><i class="fa fa-map-marker"></i><span class="location" ng-bind="icdt.location['display_value']"></span>
+                                                </div>
+                                                <div class="right-top-corner"></div>
+                                            </div>
+                                            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 reduce-left-padding-0">
+                                                <div class="incident-info pull-right"> <i class="fa fa-calendar"></i><span class="date" ng-bind="icdt.sys_created_on"></span> </div>
+                                            </div>
+                                        </div>
+                                        <div class="row line-spacer-10">
+                                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                <div class="incident-info">
+                                                    <i class="fa fa-icon fa-rss"></i><span class="subject" ng-bind="icdt.short_description" data-toggle="modal" data-target="#incidentModal" ng-click="ViewModal(icdt,'sev-1')"></span>
+                                                    <p class="history" ng-bind="GetTrim(icdt.comments_and_work_notes)"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--Empty Carousel-->
+                        <div class="empty-slide" ng-show="incidentsP1.length<1">
+                            <div class="row">
+                                <div class="col-xs-10 col-sm-8 col-md-8 col-lg-8 reduce-right-padding-0">
+                                    <div class="incident-info ribbon"> <span class="msg-note">NO SEVERITY-1 Incident Reported</span> <i class="fa fa-thumbs-up fa-2x animated wobble infinite"></i> </div>
+                                </div>
+                                <div class="col-xs-2 col-sm-1 col-lg-1 col-md-1 reduce-both-padding-0">
+                                    <div class="right-slide"></div>
+                                </div>
+                                <div class=" col-sm-3 col-lg-3 col-md-3 reduce-left-padding-0">
+                                    <div class="incident-info pull-right"> </div>
+                                </div>
+                            </div>
+                            <div class="row line-spacer-5">
+                                <div class="col-xs-12 col-md-12 col-lg-12 col-sm-12">
+                                    <div class="incident-info">
+                                        <p class="msg-desc">We are constantly monitoring the performance and availability of Global Manufacturing.</p>
+                                        <p class="msg-desc">We will post status updates here should there be any interruptions in service.</p>
+                                        <p class="msg-desc">
+                                            If you are experiencing any major issues or outages that have not been logged please reach out to <a href="mailto:OwensCorningServiceDesk@owenscorning.com" title="Owens Corning Service Desk">OwensCorningServiceDesk@owenscorning.com</a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--Severity 2 Slides-->
+                <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12 reduce-left-padding-5  reduce-top-padding-5">
+                    <div class="slider-section">
+                        <!--Carousel-->
+                        <div class="carousel slide" data-interval="5000" data-pause="null">
+                            <!-- Wrapper for slides -->
+                            <div class="carousel-inner">
+                                <div class="item" ng-class="{'active':$index==0}" ng-repeat="icdt2 in incidentsP2">
+                                    <div class="slider-body sev-2">
+                                        <div class="row">
+                                            <div class="col-xs-12 col-sm-9 col-md-9 col-lg-9 reduce-right-padding-0">
+                                                <div class="incident-info ribbon">
+                                                    <a class="number" ng-bind="icdt2.number" target="_blank" href="{{'https://owenscorning.service-now.com/incident.do?sys_id='+icdt2.sys_id}}"></a><i class="fa fa-map-marker"></i><span class="location" ng-bind="icdt2.location['display_value']"></span>
+                                                    <div class="right-top-corner"></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-3 col-lg-3 col-md-3 reduce-left-padding-0">
+                                                <div class="incident-info pull-right"> <i class="fa fa-calendar"></i><span class="date" ng-bind="icdt2.sys_created_on"></span> </div>
+                                            </div>
+                                        </div>
+                                        <div class="row line-spacer-10">
+                                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                <div class="incident-info">
+                                                    <i class="fa fa-icon fa-rss"></i><span class="subject" ng-bind="icdt2.short_description" data-toggle="modal" data-target="#incidentModal" ng-click="ViewModal(icdt2,'sev-2')"></span>
+                                                    <p class="history" ng-bind="GetTrim(icdt2.comments_and_work_notes)"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--Empty Carousel-->
+                        <div class="empty-slide" ng-show="incidentsP2.length<1">
+                            <div class="row">
+                                <div class="col-xs-10 col-sm-8 col-md-8 col-lg-8 reduce-right-padding-0">
+                                    <div class="incident-info ribbon"> <span class="msg-note">NO SEVERITY-2 Incident Reported</span><i class="fa fa-thumbs-up fa-2x animated wobble infinite"></i> </div>
+                                </div>
+                                <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 reduce-both-padding-0">
+                                    <div class="right-slide"></div>
+                                </div>
+                                <div class="col-xs-1 col-sm-3 col-md-3 col-lg-3 reduce-left-padding-0">
+                                    <div class="incident-info pull-right">
+                                        <!--<i class="fa fa-spinner fa-spin"></i><span class="msg-time">2 min ago</span>-->
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row line-spacer-5">
+                                <div class="col-xs-12 col-sm-12 col-lg-12 col-md-12">
+                                    <div class="incident-info">
+                                        <p class="msg-desc">We are constantly monitoring the performance and availability of Global Manufacturing.</p>
+                                        <p class="msg-desc">We will post status updates here should there be any interruptions in service.</p>
+                                        <p class="msg-desc">
+                                            If you are experiencing any major issues or outages that have not been logged please reach out to <a href="mailto:OwensCorningServiceDesk@owenscorning.com" title="Owens Corning Service Desk">OwensCorningServiceDesk@owenscorning.com</a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--Charts-->
+            <div class="row line-spacer-7">
+                <!--Chart-->
+                <div class="col-lg-8 col-sm-12 col-xs-12 col-md-8 ">
+                    <div class="row">
+                        <div class="col-lg-5 col-sm-6 col-md-5 col-xs-12 reduce-right-padding-5   reduce-top-padding-5">
+                            <!--Incident Month Chart-->
+                            <div class="chart-container">
+                                <div class="chart-title"> <i class="fa fa-line-chart"></i> <span>Incidents by Month</span> <span class="pull-right chart-note" ng-bind="isPriority1?'SEVERITY-2':'SEVERITY-1'"></span> </div>
+                                <div class="chart-draw" id="incidentmonthchart"> </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-7 col-sm-6 col-md-7 col-xs-12 reduce-both-padding-5  reduce-top-padding-5 reduce-right-padding-15">
+                            <!--Incident Group Chart-->
+                            <div class="chart-container">
+                                <div class="chart-title"> <i class="fa fa-bar-chart"></i> <span>Incidents to Application ({{getCurrentMonth()+"-"+getCurrentYear()}}) </span> <span class="pull-right chart-note" ng-bind="isPriority1?'SEVERITY-2':'SEVERITY-1'"></span> </div>
+                                <div class="chart-draw" id="incidenttowerchart"> </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--Share-->
+                <div class="col-lg-4 col-sm-12 col-md-4 col-xs-12  reduce-left-padding-5 reduce-top-padding-5 reduce-left-padding-15">
+                    <!--Incident Region Chart-->
+                    <div class="region-container">
+                        <div class="region-title "> <i class="fa fa-map-marker"></i> <span>Incidents by Region ( Last 12 months)</span> <span class="pull-right chart-note" ng-bind="isPriority1?'SEVERITY-2':'SEVERITY-1'"></span> </div>
+                        <!--Incident Region Tiles-->
+                        <div class="region-share row">
+                           
+                                <div class="col-xs-6 col-sm-3 col-md-6 col-lg-6 reduce-right-padding-3">
+                                    <div class="region-tile na-tile">
+                                        <div class="region-header"> <span ng-bind="incidentRegionShareP1[0][0]"></span> </div>
+                                        <div class="region-count animated zoomIn" ng-show="!isPriority1"> <span class="" ng-bind="incidentRegionShareP1[0][1]"></span> </div>
+                                        <div class="region-count sev-2 animated zoomIn" ng-show="isPriority1"> <span class="animated zoomIn" ng-bind="incidentRegionShareP2[0][1]"></span> </div>
+                                    </div>
+                                </div>
+                            <div class="col-xs-6 col-sm-3 col-md-6 col-lg-6 reduce-left-padding-3 reduce-right-padding-by-3">
+                                <div class="region-tile la-tile">
+                                    <div class="region-header"> <span ng-bind="incidentRegionShareP1[1][0]"></span> </div>
+                                    <div class="region-count animated zoomIn" ng-show="!isPriority1"> <span class="animated zoomIn" ng-bind="incidentRegionShareP1[1][1]"></span> </div>
+                                    <div class="region-count sev-2 animated zoomIn" ng-show="isPriority1"> <span class="animated zoomIn" ng-bind="incidentRegionShareP2[1][1]"></span> </div>
+                                </div>
+                            </div>
+                            
+                           
+                            <div class="col-xs-6 col-sm-3 col-lg-6 col-md-6 reduce-right-padding-3 reduce-top-padding-6 reduce-left-padding-by-3">
+                                <div class="region-tile eu-tile">
+                                    <div class="region-header"> <span ng-bind="incidentRegionShareP1[2][0]"></span> </div>
+                                    <div class="region-count animated zoomIn" ng-show="!isPriority1"> <span class="animated zoomIn" ng-bind="incidentRegionShareP1[2][1]"></span> </div>
+                                    <div class="region-count sev-2 animated zoomIn" ng-show="isPriority1"> <span class="animated zoomIn" ng-bind="incidentRegionShareP2[2][1]"></span> </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-6 col-sm-3 col-md-6 col-lg-6 reduce-left-padding-3 reduce-top-padding-6">
+                                <div class="region-tile apac-tile">
+                                    <div class="region-header"> <span ng-bind="incidentRegionShareP1[3][0]"></span> </div>
+                                    <div class="region-count animated zoomIn" ng-show="!isPriority1"> <span class="animated zoomIn" ng-bind="incidentRegionShareP1[3][1]"></span> </div>
+                                    <div class="region-count sev-2 animated zoomIn" ng-show="isPriority1"> <span class="animated zoomIn" ng-bind="incidentRegionShareP2[3][1]"></span> </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!--Empty Section-->
+        <section class="empty-section" ng-hide="!isPageHide">
+            <div id="loader-wrapper">
+                <div id="loader"></div>
+                <div id="loading-text">LOADING...</div>
+            </div>
+        </section>
+        <!--Modal PopUp-->
+        <div class="modal fade" id="incidentModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content" ng-class="className">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <div class="row">
+                            <div class="col-xs-3 col-sm-3 col-lg-3 col-md-3">
+                                <span class="number" ng-bind="viewIncident.number"></span>
+                            </div>
+                            <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
+                                <i class="fa fa-map-marker"></i><span class="location" ng-bind="viewIncident.location['display_value']"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <span class="subject" ng-bind="viewIncident.short_description"></span>
+                        <div class="row line-spacer-10">
+                            <div class="col-xs-6 col-sm-6 col-md-6  col-lg-6">
+                                <span class="date">opened at: </span><span ng-bind="viewIncident.sys_created_on"></span>
+                            </div>
+                            <!--<div class="col-xs-6"><span class="date">update on: </span><span ng-bind="viewIncident.sys_updated_on"></span></div>-->
+                        </div>
+                        <p class="history" ng-bind="GetTrim(viewIncident.comments_and_work_notes)"></p>
+                    </div>
+                    <div class="modal-footer"> <a class="btn btn-primary link" target="_blank" href="{{'https://owenscorning.service-now.com/incident.do?sys_id='+viewIncident.sys_id}}">Connect to Service Now</a> </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
